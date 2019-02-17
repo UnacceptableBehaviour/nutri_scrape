@@ -17,11 +17,13 @@
 #
 #-------------------------------------------------------------------------------
 require 'rubygems'
+require 'nutrients'
 
+puts "I AM the nutrients!"
 
+n = NutrientInfo.new 'sour dough ring loaf', 8050602, {}
 
-
-
+puts n.to_s
 
 exit
 #
