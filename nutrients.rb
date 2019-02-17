@@ -1,9 +1,9 @@
 #!/usr/bin/env ruby
 
 #-------------------------------------------------------------------------------
-#  Filename: get_product_info.rb
+#  Filename: nutrients.rb
 #
-#= Description - scrape supermarket websites for product information 
+#= Description - nutrient info class
 #
 #-------------------------------------------------------------------------------
 #  Vs   Auth  Date    Comments
@@ -16,7 +16,6 @@
 #
 #
 #-------------------------------------------------------------------------------
-require 'rubygems'
 
 
 
