@@ -32,14 +32,14 @@ class ProductInfo
                 :ingredients,
                 :ingredients_text
                 
-   def initialise name, nutri_data = {}
+   def initialise name, nutrient_table, nutri_data = {}
      @product_name        = name
      @price_per_package   = 0.0
      @price_per_measure   = 0.0
      @supplier_item_code  = ''
      @product_url         = ''
      @supplier_name       = ''
-     @nutrition_info      = SimpleNutrientInfo.new name, @supplier_item_code, nutridata
+     @nutrition_info      = SimpleNutrientInfo.new name, @supplier_item_code, nutrient_table, nutridata
      @ingredients         = {}            # 'ingredient' => 1 or { sub_ingredients }
      @ingredients_text    = ''
    end   

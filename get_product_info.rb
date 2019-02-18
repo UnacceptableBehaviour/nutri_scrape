@@ -51,7 +51,7 @@ puts
 # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 def scrape_sainsburys html_page
-  SimpleNutrientInfo.new 'sainsburys', 1, {}
+  #SimpleNutrientInfo.new 'sainsburys', 1, {}
 end
 
 # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
@@ -87,6 +87,8 @@ def scrape_morrisons html_page
   a_price_per_measure = html_page.search(".//p[@class='pricePerWeight']").text.strip
   puts "PRICE PER WEIGHT:    #{a_price_per_measure}"
   
+  a_supplier_item_code = '-199' # define magic number 
+  
   # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
   #get_morrison_ingredients
   a_ingredients_text = ''
@@ -118,20 +120,20 @@ def scrape_morrisons html_page
   # add a check for as prepared and other dodges
   table = html_page.at('table')
   
-  # add header titles
-  (CATEGORY_WIDTH+VALUE_WIDTH).times{ print "-"} ; puts
-  puts "Category".ljust(CATEGORY_WIDTH)+"Value".ljust(VALUE_WIDTH)
-  (CATEGORY_WIDTH+VALUE_WIDTH).times{ print "-"} ; puts
+  ## add header titles
+  #(CATEGORY_WIDTH+VALUE_WIDTH).times{ print "-"} ; puts
+  #puts "Category".ljust(CATEGORY_WIDTH)+"Value".ljust(VALUE_WIDTH)
+  #(CATEGORY_WIDTH+VALUE_WIDTH).times{ print "-"} ; puts
+  #
+  #table.search('tr').each { |tr|
+  #  next if tr.children[0].text =~ /Typical/
+  #  next if tr.children[0].text =~ /Reference/
+  #  
+  #  puts "#{tr.children[0].text}".ljust(CATEGORY_WIDTH)+"#{tr.children[1].text}".ljust(VALUE_WIDTH)    
+  #}
+  #(CATEGORY_WIDTH+VALUE_WIDTH).times{ print "-"} ; puts
   
-  table.search('tr').each { |tr|
-    next if tr.children[0].text =~ /Typical/
-    next if tr.children[0].text =~ /Reference/
-    
-    puts "#{tr.children[0].text}".ljust(CATEGORY_WIDTH)+"#{tr.children[1].text}".ljust(VALUE_WIDTH)    
-  }
-  (CATEGORY_WIDTH+VALUE_WIDTH).times{ print "-"} ; puts
-  
-  
+  a_nutrition_info = SimpleNutrientInfo.new  a_product_name, a_supplier_item_code, table 
   
 end
 
@@ -243,9 +245,10 @@ end
 
 
 
-urls = [#'https://www.sainsburys.co.uk/shop/gb/groceries/sainsburys-white-closed-cup-mushrooms-500g',          # white mushrooms
-        'https://groceries.morrisons.com/webshop/product/Morrisons-Beef-Stock-Cubes-12s/265316011',           # beef stock cube
-        'https://groceries.morrisons.com/webshop/product/Pilgrims-Choice-Extra-Mature-Cheddar/115520011',
+urls = ['https://www.sainsburys.co.uk/shop/gb/groceries/sainsburys-white-closed-cup-mushrooms-500g',          # white mushrooms
+        'https://www.sainsburys.co.uk/shop/gb/groceries/sainsburys-large-mango-%28each%29',
+        #'https://groceries.morrisons.com/webshop/product/Morrisons-Beef-Stock-Cubes-12s/265316011',           # beef stock cube
+        #'https://groceries.morrisons.com/webshop/product/Pilgrims-Choice-Extra-Mature-Cheddar/115520011',
         #'https://www.tesco.com/groceries/en-GB/products/294070184',                                           # red cabbage
         #'https://www.waitrose.com/ecom/products/waitrose-cooks-homebaking-baking-powder/650311-92314-92315',  # baking powder - info in drop down        
         #'https://food.coop.co.uk/',                                                        # requires a login - keep it simple
@@ -260,9 +263,9 @@ urls = [#'https://www.sainsburys.co.uk/shop/gb/groceries/sainsburys-white-closed
 urls.each{ |url|
   puts ". . . . GETTING\n #{url}"
   
-  nutrients = get_product_info url
+  product_info = get_product_info url
   
-  puts nutrients.to_s
+  puts product_info.to_s  
   
 }
  
