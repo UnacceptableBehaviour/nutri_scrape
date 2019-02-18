@@ -47,27 +47,51 @@ require 'logger'
 300.times{ print '#'}
 puts
 
-# wrap page get with exception handling
-def get_page_with_nokogiri(page_url)
 
-  begin
-    page = Nokogiri::HTML(open(page_url))
-  rescue => e
-    puts e.backtrace.class
-    puts "inspecting"
-    puts e.inspect
-    puts "--------"
-    puts e.message
-    puts e.backtrace.last
-    sleep(10)
-    retry
-  end
+def scrape_sainsburys html_page
+  NutrientInfo.new 'sainsburys', 1, {}
+end
 
+def scrape_morrisons html_page
+  NutrientInfo.new 'morrisons', 2, {}
+end
+
+def scrape_tesco html_page
+  NutrientInfo.new 'tesco', 3, {}
+end
+
+def scrape_waitrose html_page
+  NutrientInfo.new 'waitrose', 4, {}
+end
+
+def scrape_coop html_page
+  NutrientInfo.new 'coop', 5, {}
+end
+
+def scrape_ocado html_page
+  NutrientInfo.new 'ocado', 6, {}
 end
 
 
-def get_product_info mechanize_agent, url
-  product_info = 
+def get_product_info url
+  product_info = nil
+  
+  mech_agent = Mechanize.new { |agent|
+    agent.log = Logger.new "./z_data/mechanize/mechanize.log"
+    agent.history.clear
+    agent.redirect_ok = true  
+    agent.follow_meta_refresh = true
+    agent.keep_alive = true
+    agent.open_timeout = 30
+    agent.read_timeout = 30  
+    # pp Mechanize::AGENT_ALIASES # show list of agents - no mac chrome!
+    agent.user_agent_alias = 'Mac Safari'
+  }
+  
+  mech_agent.get(url)     # get page
+  
+  page = mech_agent.page
+  
   
   supplier_regex = [  
     /(sainsburys)/,
@@ -88,48 +112,44 @@ def get_product_info mechanize_agent, url
     
     break if $1    
   }
+
+  
+  # SAVE page for inspection
+  local_copy_location = './z_data/mechanize/'
+  
+  retireved_page_name = "retievd_page_from_#{match}.html"
+  
+  File.open( File.join(local_copy_location,retireved_page_name ), 'w') { |file| file << page.body }
+  # file automatically closed by block
+
   
   case match
     
   when 'sainsburys'
-    product_info = NutrientInfo.new 'sainsburys', 1, {}
+    product_info = scrape_sainsburys page
     
   when 'morrisons'
-    product_info = NutrientInfo.new 'morrisons', 2, {}
+    product_info = scrape_morrisons page
     
   when 'tesco'
-    product_info = NutrientInfo.new 'tesco', 3, {}
+    product_info = scrape_tesco page
     
   when 'waitrose'
-    product_info = NutrientInfo.new 'waitrose', 4, {}
+    product_info = scrape_waitrose page
     
   when 'coop'
-    product_info = NutrientInfo.new 'coop', 5, {}
+    product_info = scrape_coop page
     
   when 'ocado'
-    product_info = NutrientInfo.new 'ocado', 6, {}
+    product_info = scrape_ocado page
   
   when nil
-    product_info = NutrientInfo.new 'specialist', 7, {}
+    product_info = scrape_specialist page
     
   end
     
   product_info
 end
-
-
-
-mech_agent = Mechanize.new { |agent|
-  agent.log = Logger.new "./z_data/mechanize/mechanize.log"
-  agent.history.clear
-  agent.redirect_ok = true  
-  agent.follow_meta_refresh = true
-  agent.keep_alive = true
-  agent.open_timeout = 30
-  agent.read_timeout = 30  
-  # pp Mechanize::AGENT_ALIASES # show list of agents - no mac chrome!
-  agent.user_agent_alias = 'Mac Safari'
-}
 
 
 
@@ -140,8 +160,8 @@ urls = ['https://www.sainsburys.co.uk/shop/gb/groceries/sainsburys-white-closed-
         'https://www.waitrose.com/ecom/products/waitrose-cooks-homebaking-baking-powder/650311-92314-92315',  # baking powder - info in drop down        
         'https://food.coop.co.uk/',                                                        # requires a login - keep it simple
         # the occado web - this site looks identical to morrisons! ?
-        'https://www.ocado.com/webshop/product/Ocado-Green-Beans/81086011',                # green bean - no nutrition table
-        #'https://www.ocado.com/webshop/product/Sunripe-Organic-Green-Beans/235313011',    # green bean - large nutrition table
+        #'https://www.ocado.com/webshop/product/Ocado-Green-Beans/81086011',                # green bean - no nutrition table
+        'https://www.ocado.com/webshop/product/Sunripe-Organic-Green-Beans/235313011',    # green bean - large nutrition table
         #'https://www.ocado.com/webshop/product/Essential-Waitrose-Round-Beans/18887011',  # green bean - small nutrition table
         
        ]
@@ -150,7 +170,7 @@ urls = ['https://www.sainsburys.co.uk/shop/gb/groceries/sainsburys-white-closed-
 urls.each{ |url|
   puts ". . . . GETTING\n #{url}"
   
-  nutrients = get_product_info mech_agent, url
+  nutrients = get_product_info url
   
   puts nutrients.to_s
   
@@ -158,14 +178,10 @@ urls.each{ |url|
  
 exit
 
-#mech_agent.get(url)
-#puts;puts
-#
-## This now contains the HTML mech_agent.page.body - VIEW HTML IN CHROME
-##-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-
-## SAVE page for inspection
-#local_copy_location = './z_data/mechanize/'
-#File.open(File.join(local_copy_location,'page_load_PRE_sbs.html'), 'w') {|file| file << mech_agent.page.body }
-#
+
+
+puts;puts
+
+
 #exit
 #
