@@ -155,7 +155,7 @@ urls.each{ |url|
   puts nutrients.to_s
   
 }
-
+ 
 exit
 
 #mech_agent.get(url)
