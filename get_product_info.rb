@@ -44,6 +44,8 @@ require 'mechanize'
 require 'logger'
 #require 'pp'
 
+300.times{ print '#'}
+puts
 
 # wrap page get with exception handling
 def get_page_with_nokogiri(page_url)
@@ -64,6 +66,58 @@ def get_page_with_nokogiri(page_url)
 end
 
 
+def get_product_info mechanize_agent, url
+  product_info = 
+  
+  supplier_regex = [  
+    /(sainsburys)/,
+    /(morrisons)/,
+    /(tesco)/,
+    /(waitrose)/,
+    /(coop)/,
+    /(ocado)/
+  ]
+  
+  
+  match = nil
+    
+  supplier_regex.each{ |regex|    
+    url =~ regex
+    
+    match = $1
+    
+    break if $1    
+  }
+  
+  case match
+    
+  when 'sainsburys'
+    product_info = NutrientInfo.new 'sainsburys', 1, {}
+    
+  when 'morrisons'
+    product_info = NutrientInfo.new 'morrisons', 2, {}
+    
+  when 'tesco'
+    product_info = NutrientInfo.new 'tesco', 3, {}
+    
+  when 'waitrose'
+    product_info = NutrientInfo.new 'waitrose', 4, {}
+    
+  when 'coop'
+    product_info = NutrientInfo.new 'coop', 5, {}
+    
+  when 'ocado'
+    product_info = NutrientInfo.new 'ocado', 6, {}
+  
+  when nil
+    product_info = NutrientInfo.new 'specialist', 7, {}
+    
+  end
+    
+  product_info
+end
+
+
 
 mech_agent = Mechanize.new { |agent|
   agent.log = Logger.new "./z_data/mechanize/mechanize.log"
@@ -80,32 +134,38 @@ mech_agent = Mechanize.new { |agent|
 
 
 
-url = 'https://www.sainsburys.co.uk/shop/gb/groceries/sainsburys-white-closed-cup-mushrooms-500g'
-puts ". . . . GETTING\n #{url}"
-
-mech_agent.get(url)
-puts;puts
-
-# This now contains the HTML mech_agent.page.body - VIEW HTML IN CHROME
-#-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-
-# SAVE page for inspection
-local_copy_location = './z_data/mechanize/'
-File.open(File.join(local_copy_location,'page_load_PRE_sbs.html'), 'w') {|file| file << mech_agent.page.body }
-
-
+urls = ['https://www.sainsburys.co.uk/shop/gb/groceries/sainsburys-white-closed-cup-mushrooms-500g',          # white mushrooms
+        'https://groceries.morrisons.com/webshop/product/Morrisons-Beef-Stock-Cubes-12s/265316011',           # beef stock cube
+        'https://www.tesco.com/groceries/en-GB/products/294070184',                                           # red cabbage
+        'https://www.waitrose.com/ecom/products/waitrose-cooks-homebaking-baking-powder/650311-92314-92315',  # baking powder - info in drop down        
+        'https://food.coop.co.uk/',                                                        # requires a login - keep it simple
+        # the occado web - this site looks identical to morrisons! ?
+        'https://www.ocado.com/webshop/product/Ocado-Green-Beans/81086011',                # green bean - no nutrition table
+        #'https://www.ocado.com/webshop/product/Sunripe-Organic-Green-Beans/235313011',    # green bean - large nutrition table
+        #'https://www.ocado.com/webshop/product/Essential-Waitrose-Round-Beans/18887011',  # green bean - small nutrition table
+        
+       ]
 
 
-
-
-
-
-
-
-
-
-n = NutrientInfo.new 'sour dough ring loaf', 8050602, {}
-
-puts n.to_s
+urls.each{ |url|
+  puts ". . . . GETTING\n #{url}"
+  
+  nutrients = get_product_info mech_agent, url
+  
+  puts nutrients.to_s
+  
+}
 
 exit
+
+#mech_agent.get(url)
+#puts;puts
+#
+## This now contains the HTML mech_agent.page.body - VIEW HTML IN CHROME
+##-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-
+## SAVE page for inspection
+#local_copy_location = './z_data/mechanize/'
+#File.open(File.join(local_copy_location,'page_load_PRE_sbs.html'), 'w') {|file| file << mech_agent.page.body }
+#
+#exit
 #
