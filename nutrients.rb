@@ -36,7 +36,7 @@
 
 puts "included< nutrients.rb >"
 
-class NutrientInfo
+class SimpleNutrientInfo
   attr_accessor :name, :fda_db_no, :nutrients        
   
   def initialize (name, id=-99, new_nutrients = {} )
@@ -92,6 +92,5 @@ class NutrientInfo
   end
 
 end
-
 
 #

@@ -18,6 +18,7 @@
 #-------------------------------------------------------------------------------
 require 'rubygems'
 require 'nutrients'
+require 'product_info'
 
 # Following is a simple script to scrape information from Sainsburys website to fill a
 # Nutrition object with data about a particular product.
@@ -47,32 +48,120 @@ require 'logger'
 300.times{ print '#'}
 puts
 
-
+# - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+# - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 def scrape_sainsburys html_page
-  NutrientInfo.new 'sainsburys', 1, {}
+  SimpleNutrientInfo.new 'sainsburys', 1, {}
+end
+
+# - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+# Morrisons
+# - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+def get_morrison_ingredients
+  # refactor
 end
 
 def scrape_morrisons html_page
-  NutrientInfo.new 'morrisons', 2, {}
+  #SimpleNutrientInfo.new 'morrisons', 2, {}
+
+  #a_product_name
+  #a_price_per_package
+  #a_price_per_measure
+  #a_supplier_item_code
+  #a_product_url
+  #a_supplier_name
+  #a_nutrition_info
+  #a_ingredients
+  #a_ingredients_text
+  
+  a_supplier_name = 'Morrisons'
+  
+  a_product_name = html_page.search(".//h1/strong[@itemprop='name']").text.strip 
+  puts "\n\nPRODUCT NAME:        #{a_product_name} - #{a_supplier_name}"
+  
+  a_price_per_package = html_page.search(".//div[@class='typicalPrice']").text.strip
+  puts "UNIT COST:           #{a_price_per_package}"
+
+  # Package weight:    ? - can be derived from unit cost & price/100g
+
+  a_price_per_measure = html_page.search(".//p[@class='pricePerWeight']").text.strip
+  puts "PRICE PER WEIGHT:    #{a_price_per_measure}"
+  
+  # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+  #get_morrison_ingredients
+  a_ingredients_text = ''
+
+  node_set = html_page.search(".//div[@class='bopSection']")
+
+  get_this_node = false
+
+  # get the node after 'Allergy Advice'
+  node_set.search(".//p").each{ |node|
+        
+    if get_this_node
+
+      a_ingredients_text = node.text
+
+      break
+
+    end
+
+    # found allergy advice flag it
+    get_this_node = true if node.text =~ /Allergy Advice:/
+
+  }
+  
+  puts "INGREDIENTS:         #{a_ingredients_text}"
+  
+  # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+  # get_morrison_nutrition_info_per_100g
+  # add a check for as prepared and other dodges
+  table = html_page.at('table')
+  
+  # add header titles
+  (CATEGORY_WIDTH+VALUE_WIDTH).times{ print "-"} ; puts
+  puts "Category".ljust(CATEGORY_WIDTH)+"Value".ljust(VALUE_WIDTH)
+  (CATEGORY_WIDTH+VALUE_WIDTH).times{ print "-"} ; puts
+  
+  table.search('tr').each { |tr|
+    next if tr.children[0].text =~ /Typical/
+    next if tr.children[0].text =~ /Reference/
+    
+    puts "#{tr.children[0].text}".ljust(CATEGORY_WIDTH)+"#{tr.children[1].text}".ljust(VALUE_WIDTH)    
+  }
+  (CATEGORY_WIDTH+VALUE_WIDTH).times{ print "-"} ; puts
+  
+  
+  
 end
 
+# - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+# - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 def scrape_tesco html_page
-  NutrientInfo.new 'tesco', 3, {}
+  SimpleNutrientInfo.new 'tesco', 3, {}
 end
 
+# - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+# - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 def scrape_waitrose html_page
-  NutrientInfo.new 'waitrose', 4, {}
+  SimpleNutrientInfo.new 'waitrose', 4, {}
 end
 
+# - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+# - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 def scrape_coop html_page
-  NutrientInfo.new 'coop', 5, {}
+  SimpleNutrientInfo.new 'coop', 5, {}
 end
 
+# - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+# - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 def scrape_ocado html_page
-  NutrientInfo.new 'ocado', 6, {}
+  SimpleNutrientInfo.new 'ocado', 6, {}
 end
 
-
+# - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+# top level get nutrient request
+# - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 def get_product_info url
   product_info = nil
   
@@ -154,14 +243,15 @@ end
 
 
 
-urls = ['https://www.sainsburys.co.uk/shop/gb/groceries/sainsburys-white-closed-cup-mushrooms-500g',          # white mushrooms
+urls = [#'https://www.sainsburys.co.uk/shop/gb/groceries/sainsburys-white-closed-cup-mushrooms-500g',          # white mushrooms
         'https://groceries.morrisons.com/webshop/product/Morrisons-Beef-Stock-Cubes-12s/265316011',           # beef stock cube
-        'https://www.tesco.com/groceries/en-GB/products/294070184',                                           # red cabbage
-        'https://www.waitrose.com/ecom/products/waitrose-cooks-homebaking-baking-powder/650311-92314-92315',  # baking powder - info in drop down        
-        'https://food.coop.co.uk/',                                                        # requires a login - keep it simple
+        'https://groceries.morrisons.com/webshop/product/Pilgrims-Choice-Extra-Mature-Cheddar/115520011',
+        #'https://www.tesco.com/groceries/en-GB/products/294070184',                                           # red cabbage
+        #'https://www.waitrose.com/ecom/products/waitrose-cooks-homebaking-baking-powder/650311-92314-92315',  # baking powder - info in drop down        
+        #'https://food.coop.co.uk/',                                                        # requires a login - keep it simple
         # the occado web - this site looks identical to morrisons! ?
         #'https://www.ocado.com/webshop/product/Ocado-Green-Beans/81086011',                # green bean - no nutrition table
-        'https://www.ocado.com/webshop/product/Sunripe-Organic-Green-Beans/235313011',    # green bean - large nutrition table
+        #'https://www.ocado.com/webshop/product/Sunripe-Organic-Green-Beans/235313011',    # green bean - large nutrition table
         #'https://www.ocado.com/webshop/product/Essential-Waitrose-Round-Beans/18887011',  # green bean - small nutrition table
         
        ]
