@@ -120,20 +120,60 @@ def scrape_morrisons html_page
   # add a check for as prepared and other dodges
   table = html_page.at('table')
   
-  ## add header titles
+  a_symbol_to_regex = {
+    :energy =>            /(\d+)\s*kcal/,      # $1 = kcal integer
+    :fat =>               /fat/,
+    :saturates =>         /saturates/,
+    :mono_unsaturates =>  /mono/,
+    :poly_unsaturates =>  /poly/,
+    :omega_3 =>           /omega/,
+    :carbohydrates =>     /carbohydrate/,
+    :sugars =>            /sugars/,
+    :starch =>            /starch/,
+    :protein =>           /protein/,
+    :fibre =>             /fibre/,
+    :salt =>              /salt/,
+    :alcohol =>           /alchol/
+  }
+  
+  # add header titles
   #(CATEGORY_WIDTH+VALUE_WIDTH).times{ print "-"} ; puts
   #puts "Category".ljust(CATEGORY_WIDTH)+"Value".ljust(VALUE_WIDTH)
   #(CATEGORY_WIDTH+VALUE_WIDTH).times{ print "-"} ; puts
-  #
-  #table.search('tr').each { |tr|
-  #  next if tr.children[0].text =~ /Typical/
-  #  next if tr.children[0].text =~ /Reference/
-  #  
-  #  puts "#{tr.children[0].text}".ljust(CATEGORY_WIDTH)+"#{tr.children[1].text}".ljust(VALUE_WIDTH)    
-  #}
+  
+  nutrients = {}
+  
+  table.search('tr').each { |tr|
+    title_column    = tr.children[0].text.downcase
+    quantity_column = tr.children[1].text.downcase
+    
+    next if title_column =~ /typical/      # check here for 'as prepared'
+    next if title_column =~ /reference/
+    
+    if quantity_column =~ a_symbol_to_regex[:energy]
+      
+      nutrients[:energy] = $1.to_i
+      
+    end
+
+    a_symbol_to_regex.each_pair { |sym, regex|
+              
+      if title_column =~ regex
+        
+        quantity_column =~ /(\d+\.\d*)g/
+
+        nutrients[sym] = $1.to_f.round(1)
+        #puts "     SYM:#{sym.to_s} - #{regex.to_s} = qty:#{quantity_column} - $1 #{$1} <"
+        
+      end
+
+    }
+    
+    #puts "#{tr.children[0].text}".ljust(CATEGORY_WIDTH)+"#{tr.children[1].text}".ljust(VALUE_WIDTH)    
+  }
   #(CATEGORY_WIDTH+VALUE_WIDTH).times{ print "-"} ; puts
   
-  a_nutrition_info = SimpleNutrientInfo.new  a_product_name, a_supplier_item_code, table 
+  a_nutrition_info = SimpleNutrientInfo.new  a_product_name, a_supplier_item_code, nutrients 
   
 end
 
@@ -247,8 +287,8 @@ end
 
 urls = ['https://www.sainsburys.co.uk/shop/gb/groceries/sainsburys-white-closed-cup-mushrooms-500g',          # white mushrooms
         'https://www.sainsburys.co.uk/shop/gb/groceries/sainsburys-large-mango-%28each%29',
-        #'https://groceries.morrisons.com/webshop/product/Morrisons-Beef-Stock-Cubes-12s/265316011',           # beef stock cube
-        #'https://groceries.morrisons.com/webshop/product/Pilgrims-Choice-Extra-Mature-Cheddar/115520011',
+        'https://groceries.morrisons.com/webshop/product/Morrisons-Beef-Stock-Cubes-12s/265316011',           # beef stock cube
+        'https://groceries.morrisons.com/webshop/product/Pilgrims-Choice-Extra-Mature-Cheddar/115520011',
         #'https://www.tesco.com/groceries/en-GB/products/294070184',                                           # red cabbage
         #'https://www.waitrose.com/ecom/products/waitrose-cooks-homebaking-baking-powder/650311-92314-92315',  # baking powder - info in drop down        
         #'https://food.coop.co.uk/',                                                        # requires a login - keep it simple
