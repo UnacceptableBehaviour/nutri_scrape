@@ -47,12 +47,12 @@ class ProductInfo
     @supplier_item_code = ''
     @product_url        = url
     @supplier_name      = ''
-    @nutrition_info     = nil #SimpleNutrientInfo.new name, @supplier_item_code, nutrient_table, nutridata
-    @ingredients        = {}            # 'ingredient' => 1 or { sub_ingredients }
+    @nutrition_info     = nil 
+    @ingredients        = []
     @ingredients_text   = ''
 
     @symbol_to_regex    = {
-      :energy =>            /(\d+)\s*kcal/,      # $1 = kcal integer
+      :energy =>            /(\d+)\s*kcal/, # $1 = kcal integer
       :fat =>               /fat/,
       :saturates =>         /saturates/,
       :mono_unsaturates =>  /mono/,
@@ -67,7 +67,8 @@ class ProductInfo
       :alcohol =>           /alchol/
     }
     
-    @product_page       = nil    
+    @product_page       = nil   # Mechanize object
+    
     self.get_product_info url   
     
   end
@@ -97,10 +98,34 @@ class ProductInfo
     
     @price_per_measure = @product_page.search(".//p[@class='pricePerMeasure']").text.strip  #> "48p/100g"
     puts "Price per measure:  #{@price_per_measure}"
-
-    @supplier_item_code = @product_page.search(".//p[@class='itemCode']").text.strip         #> "Item code: 1294231"
+    
+    item_code_text = @product_page.search(".//p[@class='itemCode']").text.strip         #> "Item code: 1294231"
+    @supplier_item_code = item_code_text.sub('Item code:','').strip
     puts "Item code:  #{@supplier_item_code}"
     
+    # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+    # get_ingredients
+    
+    ingredient_search = @product_page.search(".//div[@class='itemTypeGroupContainer productText']//ul[@class='productIngredients']")
+
+    if ingredient_search                                      # make sure not nil
+      
+      @ingredients_text = ingredient_search.text
+
+      text_to_process = @ingredients_text
+      
+      text_to_process.gsub!("\u00A0", " ")                    # replace non breaking space
+      
+      text_to_process.gsub!(".", "")                          # remove full stops
+      
+      @ingredients = text_to_process.split(',').collect{ |i| i.strip }  # collect into array
+           
+    end
+    
+
+    
+    # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+    # nutrition_info_per_100g
     
     table = @product_page.at('table')
 
@@ -112,6 +137,40 @@ class ProductInfo
     table.search('tr').each { |tr|
       puts "#{tr.children[1].text}".ljust(CATEGORY_WIDTH)+"#{tr.children[2].text}".ljust(VALUE_WIDTH)
     }
+    
+    nutrients = {}
+    
+    table.search('tr').each { |tr|
+      title_column    = tr.children[1].text.downcase                        # specialise from morrison
+      quantity_column = tr.children[2].text.downcase                        # specialise from morrison
+      
+      next if title_column =~ /per 100g/    # check here for 'as prepared'  # specialise from morrison
+      next if title_column =~ /servings/                                    # specialise from morrison
+      
+      if quantity_column =~ @symbol_to_regex[:energy]
+        
+        nutrients[:energy] = $1.to_i
+        
+      end
+  
+      @symbol_to_regex.each_pair { |sym, regex|
+                
+        if title_column =~ regex
+          
+          quantity_column =~ /(\d+\.\d*)g/
+  
+          nutrients[sym] = $1.to_f.round(1)
+          #puts "     SYM:#{sym.to_s} - #{regex.to_s} = qty:#{quantity_column} - $1 #{$1} <"
+          
+        end
+  
+      }
+      
+      #puts "#{tr.children[0].text}".ljust(CATEGORY_WIDTH)+"#{tr.children[1].text}".ljust(VALUE_WIDTH)    
+    }
+    #(CATEGORY_WIDTH+VALUE_WIDTH).times{ print "-"} ; puts
+    
+    @nutrition_info = SimpleNutrientInfo.new  @product_name, @supplier_item_code, nutrients 
     
   end
   
@@ -226,24 +285,37 @@ class ProductInfo
   # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
   def scrape_tesco #@product_page
     SimpleNutrientInfo.new 'tesco', 3, {}
+    #@product_name        = ''
+    #@price_per_package   = 0.0
+    #@price_per_measure   = 0.0
+    #@supplier_item_code  = ''
+    #@product_url         = ''
+    #@supplier_name       = ''
+    #@nutrition_info      = nil #SimpleNutrientInfo.new name, @supplier_item_code, nutrient_table, nutridata
+    #@ingredients         = {}            # 'ingredient' => 1 or { sub_ingredients }
+    #@ingredients_text    = ''
+   
   end
   
   # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
   # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
   def scrape_waitrose #@product_page
     SimpleNutrientInfo.new 'waitrose', 4, {}
+    @supplier_name = 'Waitrose'
   end
   
   # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
   # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
   def scrape_coop #@product_page
     SimpleNutrientInfo.new 'coop', 5, {}
+    @supplier_name = 'Co-op'
   end
   
   # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
   # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
   def scrape_ocado #@product_page
     SimpleNutrientInfo.new 'ocado', 6, {}
+    @supplier_name = 'Ocado'
   end
   
   # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
