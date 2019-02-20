@@ -40,18 +40,18 @@ class ProductInfo
   VALUE_WIDTH = 10
                 
   def initialize name, url
-    @nick_name           = name
-    @product_name        = ''
-    @price_per_package   = 0.0
-    @price_per_measure   = 0.0
-    @supplier_item_code  = ''
-    @product_url         = url
-    @supplier_name       = ''
-    @nutrition_info      = nil #SimpleNutrientInfo.new name, @supplier_item_code, nutrient_table, nutridata
-    @ingredients         = {}            # 'ingredient' => 1 or { sub_ingredients }
-    @ingredients_text    = ''
-    
-    @symbol_to_regex = {
+    @nick_name          = name
+    @product_name       = ''
+    @price_per_package  = 0.0
+    @price_per_measure  = 0.0
+    @supplier_item_code = ''
+    @product_url        = url
+    @supplier_name      = ''
+    @nutrition_info     = nil #SimpleNutrientInfo.new name, @supplier_item_code, nutrient_table, nutridata
+    @ingredients        = {}            # 'ingredient' => 1 or { sub_ingredients }
+    @ingredients_text   = ''
+
+    @symbol_to_regex    = {
       :energy =>            /(\d+)\s*kcal/,      # $1 = kcal integer
       :fat =>               /fat/,
       :saturates =>         /saturates/,
@@ -67,6 +67,7 @@ class ProductInfo
       :alcohol =>           /alchol/
     }
     
+    @product_page       = nil    
     self.get_product_info url   
     
   end
@@ -75,7 +76,7 @@ class ProductInfo
    
   # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
   # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
-  def scrape_sainsburys html_page
+  def scrape_sainsburys #@product_page
     #@product_name        = ''
     #@price_per_package   = 0.0
     #@price_per_measure   = 0.0
@@ -88,20 +89,20 @@ class ProductInfo
     
     @supplier_name = 'Sainsburys'
     
-    @product_name = html_page.css("h1").text
+    @product_name = @product_page.css("h1").text
     puts "\n\nPRODUCT NAME: #{@product_name} <"
     
-    @price_per_package = html_page.search(".//p[@class='pricePerUnit']").text.strip  #> "95p/unit"
+    @price_per_package = @product_page.search(".//p[@class='pricePerUnit']").text.strip  #> "95p/unit"
     puts "Price per unit:  #{@price_per_package}"
     
-    @price_per_measure = html_page.search(".//p[@class='pricePerMeasure']").text.strip  #> "48p/100g"
+    @price_per_measure = @product_page.search(".//p[@class='pricePerMeasure']").text.strip  #> "48p/100g"
     puts "Price per measure:  #{@price_per_measure}"
 
-    @supplier_item_code = html_page.search(".//p[@class='itemCode']").text.strip         #> "Item code: 1294231"
+    @supplier_item_code = @product_page.search(".//p[@class='itemCode']").text.strip         #> "Item code: 1294231"
     puts "Item code:  #{@supplier_item_code}"
     
     
-    table = html_page.at('table')
+    table = @product_page.at('table')
 
     # add header titles
     (CATEGORY_WIDTH+VALUE_WIDTH).times{ print "-"} ; puts
@@ -121,7 +122,7 @@ class ProductInfo
     # refactor
   end
   
-  def scrape_morrisons html_page
+  def scrape_morrisons #@product_page
     #SimpleNutrientInfo.new 'morrisons', 2, {}
   
     #@product_name
@@ -136,15 +137,15 @@ class ProductInfo
     
     @supplier_name = 'Morrisons'
     
-    @product_name = html_page.search(".//h1/strong[@itemprop='name']").text.strip 
+    @product_name = @product_page.search(".//h1/strong[@itemprop='name']").text.strip 
     #puts "\n\nPRODUCT NAME:        #{@product_name} - #{@supplier_name}"
     
-    @price_per_package = html_page.search(".//div[@class='typicalPrice']").text.strip
+    @price_per_package = @product_page.search(".//div[@class='typicalPrice']").text.strip
     #puts "UNIT COST:           #{@price_per_package}"
   
     # Package weight:    ? - can be derived from unit cost & price/100g
   
-    @price_per_measure = html_page.search(".//p[@class='pricePerWeight']").text.strip
+    @price_per_measure = @product_page.search(".//p[@class='pricePerWeight']").text.strip
     #puts "PRICE PER WEIGHT:    #{@price_per_measure}"
     
     @supplier_item_code = '-199' # define magic number 
@@ -153,7 +154,7 @@ class ProductInfo
     #get_morrison_ingredients
     @ingredients_text = ''
   
-    node_set = html_page.search(".//div[@class='bopSection']")
+    node_set = @product_page.search(".//div[@class='bopSection']")
   
     get_this_node = false
   
@@ -178,7 +179,7 @@ class ProductInfo
     # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
     # get_morrison_nutrition_info_per_100g
     # add a check for as prepared and other dodges
-    table = html_page.at('table')
+    table = @product_page.at('table')
         
     # add header titles
     #(CATEGORY_WIDTH+VALUE_WIDTH).times{ print "-"} ; puts
@@ -223,25 +224,25 @@ class ProductInfo
   
   # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
   # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
-  def scrape_tesco html_page
+  def scrape_tesco #@product_page
     SimpleNutrientInfo.new 'tesco', 3, {}
   end
   
   # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
   # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
-  def scrape_waitrose html_page
+  def scrape_waitrose #@product_page
     SimpleNutrientInfo.new 'waitrose', 4, {}
   end
   
   # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
   # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
-  def scrape_coop html_page
+  def scrape_coop #@product_page
     SimpleNutrientInfo.new 'coop', 5, {}
   end
   
   # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
   # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
-  def scrape_ocado html_page
+  def scrape_ocado #@product_page
     SimpleNutrientInfo.new 'ocado', 6, {}
   end
   
@@ -265,7 +266,7 @@ class ProductInfo
     
     mech_agent.get(url)     # get page
     
-    page = mech_agent.page
+    @product_page = mech_agent.page
     
     
     supplier_regex = [  
@@ -294,32 +295,32 @@ class ProductInfo
     
     retireved_page_name = "retievd_page_from_#{match}.html"
     
-    File.open( File.join(local_copy_location,retireved_page_name ), 'w') { |file| file << page.body }
+    File.open( File.join(local_copy_location,retireved_page_name ), 'w') { |file| file << @product_page.body }
     # file automatically closed by block
   
     
     case match
       
     when 'sainsburys'
-      product_info = scrape_sainsburys page
+      product_info = scrape_sainsburys
       
     when 'morrisons'
-      product_info = scrape_morrisons page
+      product_info = scrape_morrisons
       
     when 'tesco'
-      product_info = scrape_tesco page
+      product_info = scrape_tesco
       
     when 'waitrose'
-      product_info = scrape_waitrose page
+      product_info = scrape_waitrose
       
     when 'coop'
-      product_info = scrape_coop page
+      product_info = scrape_coop
       
     when 'ocado'
-      product_info = scrape_ocado page
+      product_info = scrape_ocado
     
     when nil
-      product_info = scrape_specialist page
+      product_info = scrape_specialist
       
     end
       
