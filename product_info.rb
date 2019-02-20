@@ -18,6 +18,10 @@
 #-------------------------------------------------------------------------------
 
 require 'nutrients.rb'
+require 'nokogiri'
+require 'open-uri'
+require 'mechanize'
+require 'logger'
 
 puts "included< product_info.rb >"
 
@@ -41,7 +45,7 @@ class ProductInfo
     @price_per_package   = 0.0
     @price_per_measure   = 0.0
     @supplier_item_code  = ''
-    @product_url         = ''
+    @product_url         = url
     @supplier_name       = ''
     @nutrition_info      = nil #SimpleNutrientInfo.new name, @supplier_item_code, nutrient_table, nutridata
     @ingredients         = {}            # 'ingredient' => 1 or { sub_ingredients }
@@ -63,7 +67,7 @@ class ProductInfo
       :alcohol =>           /alchol/
     }
     
-    self.get_product_info url
+    self.get_product_info url   
     
   end
    
@@ -72,7 +76,42 @@ class ProductInfo
   # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
   # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
   def scrape_sainsburys html_page
-    #SimpleNutrientInfo.new 'sainsburys', 1, {}
+    #@product_name        = ''
+    #@price_per_package   = 0.0
+    #@price_per_measure   = 0.0
+    #@supplier_item_code  = ''
+    #@product_url         = ''
+    #@supplier_name       = ''
+    #@nutrition_info      = nil #SimpleNutrientInfo.new name, @supplier_item_code, nutrient_table, nutridata
+    #@ingredients         = {}            # 'ingredient' => 1 or { sub_ingredients }
+    #@ingredients_text    = ''
+    
+    @supplier_name = 'Sainsburys'
+    
+    @product_name = html_page.css("h1").text
+    puts "\n\nPRODUCT NAME: #{@product_name} <"
+    
+    @price_per_package = html_page.search(".//p[@class='pricePerUnit']").text.strip  #> "95p/unit"
+    puts "Price per unit:  #{@price_per_package}"
+    
+    @price_per_measure = html_page.search(".//p[@class='pricePerMeasure']").text.strip  #> "48p/100g"
+    puts "Price per measure:  #{@price_per_measure}"
+
+    @supplier_item_code = html_page.search(".//p[@class='itemCode']").text.strip         #> "Item code: 1294231"
+    puts "Item code:  #{@supplier_item_code}"
+    
+    
+    table = html_page.at('table')
+
+    # add header titles
+    (CATEGORY_WIDTH+VALUE_WIDTH).times{ print "-"} ; puts
+    puts "Category".ljust(CATEGORY_WIDTH)+"Value".ljust(VALUE_WIDTH)
+    (CATEGORY_WIDTH+VALUE_WIDTH).times{ print "-"} ; puts
+        
+    table.search('tr').each { |tr|
+      puts "#{tr.children[1].text}".ljust(CATEGORY_WIDTH)+"#{tr.children[2].text}".ljust(VALUE_WIDTH)
+    }
+    
   end
   
   # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
@@ -98,15 +137,15 @@ class ProductInfo
     @supplier_name = 'Morrisons'
     
     @product_name = html_page.search(".//h1/strong[@itemprop='name']").text.strip 
-    puts "\n\nPRODUCT NAME:        #{@product_name} - #{@supplier_name}"
+    #puts "\n\nPRODUCT NAME:        #{@product_name} - #{@supplier_name}"
     
     @price_per_package = html_page.search(".//div[@class='typicalPrice']").text.strip
-    puts "UNIT COST:           #{@price_per_package}"
+    #puts "UNIT COST:           #{@price_per_package}"
   
     # Package weight:    ? - can be derived from unit cost & price/100g
   
     @price_per_measure = html_page.search(".//p[@class='pricePerWeight']").text.strip
-    puts "PRICE PER WEIGHT:    #{@price_per_measure}"
+    #puts "PRICE PER WEIGHT:    #{@price_per_measure}"
     
     @supplier_item_code = '-199' # define magic number 
     
@@ -134,7 +173,7 @@ class ProductInfo
   
     }
     
-    puts "INGREDIENTS:         #{@ingredients_text}"
+    #puts "INGREDIENTS:         #{@ingredients_text}"
     
     # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
     # get_morrison_nutrition_info_per_100g
