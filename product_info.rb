@@ -135,18 +135,22 @@ class ProductInfo
       
       next if title_column =~ /per 100g/    # check here for 'as prepared'  # specialise from morrison
       next if title_column =~ /servings/                                    # specialise from morrison
+      next if title_column =~ /reference/
       
       if quantity_column =~ @symbol_to_regex[:energy]
         
         nutrients[:energy] = (($1.to_f) / ENERGY_TO_KCAL).to_i
-
+        
+        puts "energy match: #{$1} = #{nutrients[:energy]} kcal"
+        
       end
   
       @symbol_to_regex.each_pair { |sym, regex|
-                
+        puts "energy match: #{$1} = #{nutrients[:energy]} kcal #{sym.to_s}"
+        
         if title_column =~ regex
           
-          quantity_column =~ /(\d+\.\d*)g/
+          quantity_column =~ /(\d+\.*\d*)\s*g/
   
           nutrients[sym] = $1.to_f.round(1)
           
@@ -154,9 +158,11 @@ class ProductInfo
   
       }
       
-      #puts "#{tr.children[0].text}".ljust(CATEGORY_WIDTH)+"#{tr.children[1].text}".ljust(VALUE_WIDTH)    
+      puts "#{title_column}".ljust(CATEGORY_WIDTH)+"#{quantity_column}".ljust(VALUE_WIDTH)
     }
     #(CATEGORY_WIDTH+VALUE_WIDTH).times{ print "-"} ; puts
+    
+    pp nutrients
     
     @nutrition_info = SimpleNutrientInfo.new  @nick_name, @product_name, @product_url, nutrients 
     
@@ -238,7 +244,7 @@ class ProductInfo
                 
         if title_column =~ regex
           
-          quantity_column =~ /(\d+\.\d*)g/
+          quantity_column =~ /(\d+\.*\d*)\s*g/
   
           nutrients[sym] = $1.to_f.round(1)
           #puts "     SYM:#{sym.to_s} - #{regex.to_s} = qty:#{quantity_column} - $1 #{$1} <"

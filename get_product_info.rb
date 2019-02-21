@@ -46,13 +46,20 @@ puts
 
 
 
-urls = { 'white mushrooms' => 'https://www.sainsburys.co.uk/shop/gb/groceries/sainsburys-white-closed-cup-mushrooms-500g',          # white mushrooms
-         'mango' => 'https://www.sainsburys.co.uk/shop/gb/groceries/sainsburys-large-mango-%28each%29',
-         'mrs beef stock cubes' => 'https://groceries.morrisons.com/webshop/product/Morrisons-Beef-Stock-Cubes-12s/265316011',           # beef stock cube
-         'extra mature cheddar' => 'https://groceries.morrisons.com/webshop/product/Pilgrims-Choice-Extra-Mature-Cheddar/115520011',
-        'sbs tinned butter beans' => 'https://www.sainsburys.co.uk/shop/gb/groceries/sainsburys-butter-beans-in-water-215g',
-        'sbs tinned chick peas' => 'https://www.sainsburys.co.uk/shop/gb/groceries/sainsburys-chickpeas-215g',
-        'ktc tinned plum tomatoes' => 'https://www.sainsburys.co.uk/shop/gb/groceries/ktc-peeled-plum-tomatoes-400g',
+urls = {
+          #'white mushrooms' => 'https://www.sainsburys.co.uk/shop/gb/groceries/sainsburys-white-closed-cup-mushrooms-500g',          # white mushrooms
+          #'mango' => 'https://www.sainsburys.co.uk/shop/gb/groceries/sainsburys-large-mango-%28each%29',
+          #'mrs beef stock cubes' => 'https://groceries.morrisons.com/webshop/product/Morrisons-Beef-Stock-Cubes-12s/265316011',           # beef stock cube
+          #'extra mature cheddar' => 'https://groceries.morrisons.com/webshop/product/Pilgrims-Choice-Extra-Mature-Cheddar/115520011',
+          #'sbs tinned butter beans' => 'https://www.sainsburys.co.uk/shop/gb/groceries/sainsburys-butter-beans-in-water-215g',
+          #'sbs tinned chick peas' => 'https://www.sainsburys.co.uk/shop/gb/groceries/sainsburys-chickpeas-215g',
+          #'ktc tinned plum tomatoes' => 'https://www.sainsburys.co.uk/shop/gb/groceries/ktc-peeled-plum-tomatoes-400g',
+          # here per 100g in 2nd column - but per 100ml title in column 0 and 1 WTF!?
+          'sbs dark soy sauce' => 'https://www.sainsburys.co.uk/shop/gb/groceries/sainsburys-dark-soy-sauce-150ml',
+          # here per 100g in 3rd column
+          'walker poppadoms mango chutney' => 'https://www.sainsburys.co.uk/shop/gb/groceries/walkers-sensations-poppadoms-mango---chutney-snacks-825g',
+          'yorkie' => 'https://www.sainsburys.co.uk/shop/gb/groceries/yorkie-46g',
+          #'flying goose hoisin sauce' => 'https://groceries.morrisons.com/webshop/product/Flying-Goose-Hoisin-Sauce/387755011',
         #'' => 'https://www.tesco.com/groceries/en-GB/products/294070184',                                           # red cabbage
         #'' => 'https://www.waitrose.com/ecom/products/waitrose-cooks-homebaking-baking-powder/650311-92314-92315',  # baking powder - info in drop down        
         #'' => 'https://food.coop.co.uk/',                                                        # requires a login - keep it simple
