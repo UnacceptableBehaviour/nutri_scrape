@@ -141,12 +141,9 @@ class ProductInfo
         
         nutrients[:energy] = (($1.to_f) / ENERGY_TO_KCAL).to_i
         
-        puts "energy match: #{$1} = #{nutrients[:energy]} kcal"
-        
       end
   
       @symbol_to_regex.each_pair { |sym, regex|
-        puts "energy match: #{$1} = #{nutrients[:energy]} kcal #{sym.to_s}"
         
         if title_column =~ regex
           
