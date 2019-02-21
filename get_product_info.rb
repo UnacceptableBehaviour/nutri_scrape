@@ -48,8 +48,11 @@ puts
 
 urls = { 'white mushrooms' => 'https://www.sainsburys.co.uk/shop/gb/groceries/sainsburys-white-closed-cup-mushrooms-500g',          # white mushrooms
          'mango' => 'https://www.sainsburys.co.uk/shop/gb/groceries/sainsburys-large-mango-%28each%29',
-         #'mrs beef stock cubes' => 'https://groceries.morrisons.com/webshop/product/Morrisons-Beef-Stock-Cubes-12s/265316011',           # beef stock cube
-         #'extra mature cheddar' => 'https://groceries.morrisons.com/webshop/product/Pilgrims-Choice-Extra-Mature-Cheddar/115520011',
+         'mrs beef stock cubes' => 'https://groceries.morrisons.com/webshop/product/Morrisons-Beef-Stock-Cubes-12s/265316011',           # beef stock cube
+         'extra mature cheddar' => 'https://groceries.morrisons.com/webshop/product/Pilgrims-Choice-Extra-Mature-Cheddar/115520011',
+        'sbs tinned butter beans' => 'https://www.sainsburys.co.uk/shop/gb/groceries/sainsburys-butter-beans-in-water-215g',
+        'sbs tinned chick peas' => 'https://www.sainsburys.co.uk/shop/gb/groceries/sainsburys-chickpeas-215g',
+        'ktc tinned plum tomatoes' => 'https://www.sainsburys.co.uk/shop/gb/groceries/ktc-peeled-plum-tomatoes-400g',
         #'' => 'https://www.tesco.com/groceries/en-GB/products/294070184',                                           # red cabbage
         #'' => 'https://www.waitrose.com/ecom/products/waitrose-cooks-homebaking-baking-powder/650311-92314-92315',  # baking powder - info in drop down        
         #'' => 'https://food.coop.co.uk/',                                                        # requires a login - keep it simple

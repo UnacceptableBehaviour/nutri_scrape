@@ -39,9 +39,10 @@ puts "included< nutrients.rb >"
 class SimpleNutrientInfo
   attr_accessor :name, :fda_db_no, :nutrients        
   
-  def initialize ( name, id=-99, new_nutrients = {} )
-    @name = name
-    @fda_db_no = id    
+  def initialize ( name, product_name, id=-99, new_nutrients = {} )
+    @generic_name = name
+    @product_name = product_name
+    @fda_db_no = id  # if not in the FDA DB include a url to product
 
     @nutrients = {
       :energy => 0.0,
@@ -80,7 +81,8 @@ class SimpleNutrientInfo
       :alcohol          =>  'alcohol'
     }
     
-    return_simplified_text = "------------------ for the nutrition information #{@name} (ndb_no=#{@fda_db_no})\n"
+    #return_simplified_text = "------------------ for the nutrition information #{@name} (ndb_no=#{@fda_db_no})\n"
+    return_simplified_text = "------------------ for the nutrition information #{@generic_name} (ndb_no=#{@fda_db_no})\n"
   
     translate.each_pair{ |symbol, text|
       
