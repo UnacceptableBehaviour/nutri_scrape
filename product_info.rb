@@ -288,6 +288,12 @@ class ProductInfo
   
   # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
   # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+  def scrape_asda #@product_page  
+    @supplier_name = 'Asda'
+  end
+  
+  # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+  # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
   def scrape_ocado #@product_page
     @supplier_name = 'Ocado'
   end
@@ -361,6 +367,9 @@ class ProductInfo
       
     when 'coop'
       product_info = scrape_coop
+      
+    when 'asda'
+      product_info = scrape_asda
       
     when 'ocado'
       product_info = scrape_ocado
