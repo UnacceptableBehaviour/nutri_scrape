@@ -34,7 +34,7 @@
 #alcohol
 #											Total (100g)
 
-puts "included< nutrients.rb >"
+# add a comment to get dif tool working
 
 class SimpleNutrientInfo
   attr_accessor :name, :fda_db_no, :nutrients        

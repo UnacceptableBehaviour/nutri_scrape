@@ -257,11 +257,86 @@ class ProductInfo
     @nutrition_info = SimpleNutrientInfo.new  @nick_name, @product_name, @product_url, nutrients 
     
   end
+
+
+  # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+  # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+  def scrape_fatsecret #@product_page
+    @supplier_name = 'FatSecret'
+    # aparently Mars bars don't have any sugar!? 60% sugar
+    # https://www.fatsecret.com/calories-nutrition/mars/mars-bar
+    
+    #nutritable = nutpanel
+    @product_name = @product_page.css("h1").text
+    puts "\n\nPRODUCT NAME: #{@product_name} <"
+    
+    @price_per_package = nil
+    #puts "Price per unit:  #{@price_per_package}"
+    
+    @price_per_measure = nil
+    #puts "Price per measure:  #{@price_per_measure}"
+    
+    #item_code_text = @product_page.search(".//p[@class='itemCode']").text.strip         #> "Item code: 1294231"
+    #@supplier_item_code = item_code_text.sub('Item code:','').strip
+    #puts "Item code:  #{@supplier_item_code}"
+    
+    #table = @product_page.at('table')
+    # div.nutpanel > table - ".//div[@class='nutpanel']/table"
+    
+    #table = @product_page.css(".//div[@class='nutpanel']/table")
+    table = @product_page.css("div[@class='nutpanel']/table")
+
+    spceialised_symbol_to_regex    = {
+      :energy =>            /calories\s+(\d+)$/, # $1 = kcal integer
+      :fat =>               /total fat\s*?([\d\.]+)g/,
+      :saturates =>         /saturated fat\s*?([\d\.]+)g/,
+      :mono_unsaturates =>  /monounsaturated fat\s*?([\d\.]+)g/,
+      :poly_unsaturates =>  /polyunsaturated fat\s*?([\d\.]+)g/,
+      :carbohydrates =>     /total carbohydrate\s*?([\d\.]+)g/,
+      :sugars =>            /sugars\s*?([\d\.]+)g/,
+      :protein =>           /protein\s*?([\d\.]+)g/,
+      :fibre =>             /fibre\s*?([\d\.]+)g/,
+      :salt =>              /sodium\s*?([\d\.]+)mg/,         
+      :alcohol =>           /alchol/
+    }
+    
+    @symbol_to_regex.merge!(spceialised_symbol_to_regex)
+    
+    nutrients = {}
+    
+    table.search('tr').each { |tr|
+      
+      row_text = tr.text.gsub("\t",'').gsub("\r\n",'')
+      
+      pp row_text
+  
+      @symbol_to_regex.each_pair { |sym, regex|
+        
+        if row_text.downcase =~ regex
+          
+          #puts "FOUND: #{sym} - #{row_text} q:#{$1}"
+          #pp row_text
+          
+          if sym.to_s == 'salt'
+            nutrients[sym] = (($1.to_f / 1000.0) * 2.58).round(1) # 100g salt is 38.758g sodium
+          else
+            nutrients[sym] = $1.to_f.round(1)
+          end
+          
+        end
+      
+      }
+    }
+        
+    @nutrition_info = SimpleNutrientInfo.new  @nick_name, @product_name, @product_url, nutrients 
+   
+  end
+  
   
   # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
   # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
   def scrape_tesco #@product_page
-    
+    @supplier_name = 'Tesco'
     #@product_name        = ''
     #@price_per_package   = 0.0
     #@price_per_measure   = 0.0
@@ -278,6 +353,7 @@ class ProductInfo
   # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
   def scrape_waitrose #@product_page    
     @supplier_name = 'Waitrose'
+    # add a comment to get dif tool working
   end
   
   # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
@@ -327,7 +403,8 @@ class ProductInfo
       /(tesco)/,
       /(waitrose)/,
       /(coop)/,
-      /(ocado)/
+      /(ocado)/,
+      /(fatsecret)/
     ]
     
     
@@ -374,6 +451,9 @@ class ProductInfo
     when 'ocado'
       product_info = scrape_ocado
     
+    when 'fatsecret'
+      product_info = scrape_fatsecret
+            
     when nil
       product_info = scrape_specialist
       

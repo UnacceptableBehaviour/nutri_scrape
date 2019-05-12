@@ -55,10 +55,13 @@ urls = {
           #'sbs tinned chick peas' => 'https://www.sainsburys.co.uk/shop/gb/groceries/sainsburys-chickpeas-215g',
           #'ktc tinned plum tomatoes' => 'https://www.sainsburys.co.uk/shop/gb/groceries/ktc-peeled-plum-tomatoes-400g',
           # here per 100g in 2nd column - but per 100ml title in column 0 and 1 WTF!?
-          'sbs dark soy sauce' => 'https://www.sainsburys.co.uk/shop/gb/groceries/sainsburys-dark-soy-sauce-150ml',
+          #'sbs dark soy sauce' => 'https://www.sainsburys.co.uk/shop/gb/groceries/sainsburys-dark-soy-sauce-150ml',
           # here per 100g in 3rd column
-          'walker poppadoms mango chutney' => 'https://www.sainsburys.co.uk/shop/gb/groceries/walkers-sensations-poppadoms-mango---chutney-snacks-825g',
-          'yorkie' => 'https://www.sainsburys.co.uk/shop/gb/groceries/yorkie-46g',
+          #'walker poppadoms mango chutney' => 'https://www.sainsburys.co.uk/shop/gb/groceries/walkers-sensations-poppadoms-mango---chutney-snacks-825g',
+          #'yorkie' => 'https://www.sainsburys.co.uk/shop/gb/groceries/yorkie-46g',
+          'cava' => 'https://www.fatsecret.com/calories-nutrition/generic/spanish-cava-wine?portionid=4871975&portionamount=100.000',
+          'star anise' => 'https://www.fatsecret.com/calories-nutrition/usda/anise-seed?portionid=56595&portionamount=100.000',
+          'salmon' => 'https://www.fatsecret.com/calories-nutrition/generic/salmon-raw'
           #'flying goose hoisin sauce' => 'https://groceries.morrisons.com/webshop/product/Flying-Goose-Hoisin-Sauce/387755011',
         #'' => 'https://www.tesco.com/groceries/en-GB/products/294070184',                                           # red cabbage
         #'' => 'https://www.waitrose.com/ecom/products/waitrose-cooks-homebaking-baking-powder/650311-92314-92315',  # baking powder - info in drop down        
