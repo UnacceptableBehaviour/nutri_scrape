@@ -62,6 +62,8 @@ urls = {
           'cava' => 'https://www.fatsecret.com/calories-nutrition/generic/spanish-cava-wine?portionid=4871975&portionamount=100.000',
           'star anise' => 'https://www.fatsecret.com/calories-nutrition/usda/anise-seed?portionid=56595&portionamount=100.000',
           'salmon' => 'https://www.fatsecret.com/calories-nutrition/generic/salmon-raw'
+          folllowing get incorrect info - energy wron , has commas instead of full stops - spanish decimal
+          'chorizo' => 'https://groceries.morrisons.com/webshop/product/Elpozo-Iberico-Chorizo-Ring/456216011'
           #'flying goose hoisin sauce' => 'https://groceries.morrisons.com/webshop/product/Flying-Goose-Hoisin-Sauce/387755011',
         #'' => 'https://www.tesco.com/groceries/en-GB/products/294070184',                                           # red cabbage
         #'' => 'https://www.waitrose.com/ecom/products/waitrose-cooks-homebaking-baking-powder/650311-92314-92315',  # baking powder - info in drop down        

@@ -353,7 +353,6 @@ class ProductInfo
   # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
   def scrape_waitrose #@product_page    
     @supplier_name = 'Waitrose'
-    # add a comment to get dif tool working
   end
   
   # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
@@ -373,6 +372,20 @@ class ProductInfo
   def scrape_ocado #@product_page
     @supplier_name = 'Ocado'
   end
+
+  # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+  # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+  def scrape_booker #@product_page    
+    @supplier_name = 'Booker'
+  end
+
+  # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+  # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+  def scrape_specialist #@product_page    
+    @supplier_name = 'Specialist'
+    raise "We have a specialist?"
+  end
+
   
   # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
   # top level get nutrient request
@@ -404,6 +417,7 @@ class ProductInfo
       /(waitrose)/,
       /(coop)/,
       /(ocado)/,
+      /(booker)/,
       /(fatsecret)/
     ]
     
@@ -450,6 +464,9 @@ class ProductInfo
       
     when 'ocado'
       product_info = scrape_ocado
+    
+    when 'booker'
+      product_info = scrape_booker
     
     when 'fatsecret'
       product_info = scrape_fatsecret
