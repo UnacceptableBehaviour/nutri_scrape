@@ -123,9 +123,9 @@ class ProductInfo
     #puts "Category".ljust(CATEGORY_WIDTH)+"Value".ljust(VALUE_WIDTH)
     #(CATEGORY_WIDTH+VALUE_WIDTH).times{ print "-"} ; puts
         
-    table.search('tr').each { |tr|
-      puts "#{tr.children[1].text}".ljust(CATEGORY_WIDTH)+"#{tr.children[2].text}".ljust(VALUE_WIDTH)
-    }
+    #table.search('tr').each { |tr|
+    #  puts "#{tr.children[1].text}".ljust(CATEGORY_WIDTH)+"#{tr.children[2].text}".ljust(VALUE_WIDTH)
+    #}
     
     nutrients = {}
     
@@ -159,7 +159,7 @@ class ProductInfo
     }
     #(CATEGORY_WIDTH+VALUE_WIDTH).times{ print "-"} ; puts
     
-    pp nutrients
+    #pp nutrients
     
     @nutrition_info = SimpleNutrientInfo.new  @nick_name, @product_name, @product_url, nutrients 
     
@@ -285,7 +285,7 @@ class ProductInfo
     
     #table = @product_page.css(".//div[@class='nutpanel']/table")
     table = @product_page.css("div[@class='nutpanel']/table")
-
+    
     spceialised_symbol_to_regex    = {
       :energy =>            /calories\s+(\d+)$/, # $1 = kcal integer
       :fat =>               /total fat\s*?([\d\.]+)g/,
@@ -337,15 +337,112 @@ class ProductInfo
   # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
   def scrape_tesco #@product_page
     @supplier_name = 'Tesco'
-    #@product_name        = ''
-    #@price_per_package   = 0.0
-    #@price_per_measure   = 0.0
-    #@supplier_item_code  = ''
-    #@product_url         = ''
-    #@supplier_name       = ''
-    #@nutrition_info      = nil 
-    #@ingredients         = {}  
-    #@ingredients_text    = ''
+    
+    #itemDetails > h1
+    @product_name = @product_page.css("h1").text.strip
+    #@product_name = @product_page.search(".//h1[@class='product-details-tile__title']").text.strip
+    puts "\n\nPRODUCT NAME: #{@product_name} <"
+    
+    #
+    
+    @price_per_package = @product_page.search(".//div[@class='price-per-sellable-unit price-per-sellable-unit--price price-per-sellable-unit--price-per-item']").text.split.pop.strip  #> "95p/unit"
+    puts "Price per unit:  #{@price_per_package}"
+
+    price_per_measure_5off = @product_page.search(".//div[@class='price-per-quantity-weight']").text.strip  #> "48p/100g"
+    # returns "£0.11/100ml£0.11/100ml£0.11/100ml£0.11/100ml£0.11/100ml" or similar
+    
+    #currency = @product_page.search(".//div[@class='price-per-quantity-weight']//span[@class='currency']").text.strip  #> "48p/100g"
+    #value = @product_page.search(".//div[@class='price-per-quantity-weight']//span[@class='value']").text.strip  #> "48p/100g"
+    #weight = @product_page.search(".//div[@class='price-per-quantity-weight']//span[@class='weight']").text.strip  #> "48p/100g"    
+    #@price_per_measure = "#{currency}#{value}#{weight}"
+    
+    # returns 5 copies in a strangly encoded format - claiming to be utf-8
+    # @price_per_measure = price_per_measure_5off[0..(price_per_measure_5off.length/5 - 1)] # "£0.11/100ml"
+    # recode = price_per_measure_5off.encode('iso-8859-1').encode('utf-8')    
+    # currency_byte = recode[0]
+
+    #or - getting rid of odd £ -     
+    @price_per_measure = price_per_measure_5off.gsub(price_per_measure_5off[0], ' ').split.pop # "0.11/100ml"
+    puts "Price per measure:  #{@price_per_measure}" # 2:#{price_per_measure_5off}"
+    
+    #https://www.tesco.com/groceries/en-GB/products/278994762 < pop
+    @supplier_item_code = @product_page.uri.to_s.split('/').pop
+    puts "Item code:  #{@supplier_item_code}"
+        
+    @product_url         = @product_page.uri.to_s
+
+    
+    # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+    # get_ingredients
+    
+    ingredient_search = @product_page.search(".//div[@id='ingredients']//p[@class='product-info-block__content']")
+    
+    if ingredient_search                                      # make sure not nil
+      
+      @ingredients_text = ingredient_search.text
+    
+      text_to_process = @ingredients_text
+      
+      text_to_process.gsub!("\u00A0", " ")                    # replace non breaking space
+      
+      text_to_process.gsub!(".", "")                          # remove full stops
+      
+      @ingredients = text_to_process.split(',').collect{ |i| i.strip }  # collect into array
+           
+    end
+    
+    puts "Ingredients: #{@ingredients_text} \n<"
+    puts "Ingredient array: #{@ingredients} \n<"
+   
+    # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+    # nutrition_info_per_100g
+
+    
+    table = @product_page.search(".//table[@class='product__info-table']")
+        
+    table.search('tr').each { |tr|
+      puts "#{tr.children[0].text}".ljust(CATEGORY_WIDTH)+"#{tr.children[1].text}".ljust(CATEGORY_WIDTH)+"#{tr.children[2].text}".ljust(VALUE_WIDTH)
+    }
+    
+    nutrients = {}
+    
+    table.search('tr').each { |tr|
+      title_column    = tr.children[0].text.downcase                        # specialise from morrison
+      quantity_column = tr.children[1].text.downcase                        # specialise from morrison
+      
+      next if title_column =~ /per 100g/    # check here for 'as prepared'  # specialise from morrison
+      next if title_column =~ /servings/                                    # specialise from morrison
+      next if title_column =~ /reference/
+      next if title_column =~ /as sold/
+      
+      if quantity_column =~ @symbol_to_regex[:energy]
+        
+        nutrients[:energy] = (($1.to_f) / ENERGY_TO_KCAL).to_i
+        
+      end
+      
+      @symbol_to_regex.each_pair { |sym, regex|
+        
+        if title_column =~ regex
+          
+          quantity_column =~ /(\d+\.*\d*)\s*g/
+      
+          nutrients[sym] = $1.to_f.round(1)
+          
+        end
+  
+      }
+      
+      puts "#{title_column}".ljust(CATEGORY_WIDTH)+"#{quantity_column}".ljust(VALUE_WIDTH)
+    }
+    #(CATEGORY_WIDTH+VALUE_WIDTH).times{ print "-"} ; puts
+    
+    #pp nutrients
+    
+    @nutrition_info = SimpleNutrientInfo.new  @nick_name, @product_name, @product_url, nutrients 
+    
+    
+
    
   end
   
@@ -365,6 +462,23 @@ class ProductInfo
   # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
   def scrape_asda #@product_page  
     @supplier_name = 'Asda'
+    puts @supplier_name
+    
+    #itemDetails > h1
+    #@product_name = @product_page.css("h1").text.strip
+    @product_name = @product_page.search(".//h1[@class='prod-title']").text.strip
+    puts "\n\nPRODUCT NAME: #{@product_name} <"
+    
+    #pp @product_page
+    
+    #@price_per_package   = 0.0
+    #@price_per_measure   = 0.0
+    #@supplier_item_code  = ''
+    #@product_url         = ''
+    #@supplier_name       = ''
+    #@nutrition_info      = nil 
+    #@ingredients         = {}  
+    #@ingredients_text    = ''
   end
   
   # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
@@ -409,6 +523,7 @@ class ProductInfo
     
     @product_page = mech_agent.page
     
+    #pp @product_page
     
     supplier_regex = [  
       /(sainsburys)/,
@@ -416,6 +531,7 @@ class ProductInfo
       /(tesco)/,
       /(waitrose)/,
       /(coop)/,
+      /(asda)/,
       /(ocado)/,
       /(booker)/,
       /(fatsecret)/
