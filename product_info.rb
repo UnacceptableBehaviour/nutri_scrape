@@ -129,9 +129,13 @@ class ProductInfo
     
     nutrients = {}
     
+    # find which column the per 100g/ml is    
+    col_100 = get_table_100g_colum(table, 2)
+    
     table.search('tr').each { |tr|
       title_column    = tr.children[1].text.downcase                        # specialise from morrison
-      quantity_column = tr.children[2].text.downcase                        # specialise from morrison
+      quantity_column = '0'
+      quantity_column = tr.children[col_100].text.downcase unless tr.children[col_100] == nil
       
       next if title_column =~ /per 100g/    # check here for 'as prepared'  # specialise from morrison
       next if title_column =~ /servings/                                    # specialise from morrison
@@ -223,6 +227,9 @@ class ProductInfo
     #(CATEGORY_WIDTH+VALUE_WIDTH).times{ print "-"} ; puts
     
     nutrients = {}
+
+    # find which column the per 100g/ml is    
+    #col_100 = get_table_100g_colum(table, 2)   - only tested w/ sainburies
     
     table.search('tr').each { |tr|
       title_column    = tr.children[0].text.downcase
@@ -303,6 +310,9 @@ class ProductInfo
     @symbol_to_regex.merge!(spceialised_symbol_to_regex)
     
     nutrients = {}
+
+    # find which column the per 100g/ml is    
+    #col_100 = get_table_100g_colum(table, 2)   - only tested w/ sainburies
     
     table.search('tr').each { |tr|
       
@@ -406,9 +416,14 @@ class ProductInfo
     
     nutrients = {}
     
+    
+    # find which column the per 100g/ml is    
+    #col_100 = get_table_100g_colum(table, 2)   - only tested w/ sainburies
+
+    
     table.search('tr').each { |tr|
       title_column    = tr.children[0].text.downcase                        # specialise from morrison
-      quantity_column = tr.children[1].text.downcase                        # specialise from morrison
+      quantity_column = tr.children[col_100].text.downcase                        # specialise from morrison
       
       next if title_column =~ /per 100g/    # check here for 'as prepared'  # specialise from morrison
       next if title_column =~ /servings/                                    # specialise from morrison
@@ -469,7 +484,14 @@ class ProductInfo
     @product_name = @product_page.search(".//h1[@class='prod-title']").text.strip
     puts "\n\nPRODUCT NAME: #{@product_name} <"
     
+    # doesn't pull page in the same WAY?
+    # @product_page = mech_agent.page.search(".//div[@class='pd-right-cont']")
+    # asda-product-search-api < google
+    #https://www.google.com/search?q=asda-product-search-api&oq=asda-product-search-api&aqs=chrome..69i57j69i60.540j0j7&sourceid=chrome&ie=UTF-8
+
+    
     #pp @product_page
+    
     
     #@price_per_package   = 0.0
     #@price_per_measure   = 0.0
@@ -523,7 +545,7 @@ class ProductInfo
     
     @product_page = mech_agent.page
     
-    #pp @product_page
+    pp @product_page
     
     supplier_regex = [  
       /(sainsburys)/,
@@ -595,6 +617,25 @@ class ProductInfo
     product_info
   end   
    
+  # find which column the per 100g/ml is 
+  def get_table_100g_colum(table, default_col=2)        
+    col_100 = nil
+    
+    #puts "> > > > > COL: #{col_100}"
+    #pp table.search('tr').first
+    table.search('tr').each{ |tr|
+      tr.children.each_with_index{ |c, index|
+        puts "#{index} - #{c.text}"
+        if c.text =~ /per\s+100(g|ml)/i
+          col_100 = index
+          puts "NEW col_100: #{col_100}"
+        end
+      }
+    }
+    col_100 = col_100 || default_col # default value 2
+    #puts "> > > > > COL: #{col_100}"    
+    #col_100
+  end
    
 end
 

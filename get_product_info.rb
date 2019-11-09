@@ -51,7 +51,7 @@ urls = {
           #'mango' => 'https://www.sainsburys.co.uk/shop/gb/groceries/sainsburys-large-mango-%28each%29',
           #'mrs beef stock cubes' => 'https://groceries.morrisons.com/webshop/product/Morrisons-Beef-Stock-Cubes-12s/265316011',           # beef stock cube
           #'extra mature cheddar' => 'https://groceries.morrisons.com/webshop/product/Pilgrims-Choice-Extra-Mature-Cheddar/115520011',
-          'sbs tinned butter beans' => 'https://www.sainsburys.co.uk/shop/gb/groceries/sainsburys-butter-beans-in-water-215g',
+        #'sbs tinned butter beans' => 'https://www.sainsburys.co.uk/shop/gb/groceries/sainsburys-butter-beans-in-water-215g',
           #'sbs tinned chick peas' => 'https://www.sainsburys.co.uk/shop/gb/groceries/sainsburys-chickpeas-215g',
           #'ktc tinned plum tomatoes' => 'https://www.sainsburys.co.uk/shop/gb/groceries/ktc-peeled-plum-tomatoes-400g',
           # here per 100g in 2nd column - but per 100ml title in column 0 and 1 WTF!?
@@ -62,8 +62,9 @@ urls = {
           #'red cabbage' => 'https://www.tesco.com/groceries/en-GB/products/294070184',                                           # red cabbage
           
           #'tsc apple and raspberry juice' => 'https://www.tesco.com/groceries/en-GB/products/278994762',
-          'seeded panini' => 'https://www.tesco.com/groceries/en-GB/products/268580351',
-          
+          #'seeded panini' => 'https://www.tesco.com/groceries/en-GB/products/268580351',
+          'beef monster munch' => 'https://www.sainsburys.co.uk/shop/gb/groceries/monster-munch-roast-beef-x6-25g', # comes back w/ 22g column not 100g
+          #'mcV' => 'https://www.sainsburys.co.uk/shop/gb/groceries/mcvities-milk-chocolate-digestives-biscuits-332g',
           #'asda lamb rogan josh' => 'https://groceries.asda.com/product/indian-takeaway/asda-lamb-rogan-josh/910002599334',
           #'asda three cheese garlic flatbread' => 'https://groceries.asda.com/product/flatbreads-ciabatta/asda-three-cheese-garlic-flatbread/910002093229',          
           #'hs prawn crackers' => 'https://www.booker.co.uk/catalog/productinformation.aspx?code=247944',
@@ -92,6 +93,7 @@ new_problem_urls = {
     'tsc apple and raspberry juice' => 'https://www.tesco.com/groceries/en-GB/products/278994762', # nothing back
     'tsc seeded panini' => 'https://www.tesco.com/groceries/en-GB/products/268580351', # nothing back
     'mixed seaweed' => 'https://www.japancentre.com/en/products/3000-tokon-seaweed-salad-mix',
+    'beef monster munch' => 'https://www.sainsburys.co.uk/shop/gb/groceries/monster-munch-roast-beef-x6-25g', # comes back w/ 22g column not 100g
 }
 #returns (the info for 32.5g bag)
 #------------------ for the nutrition information cheese and onion crisps (ndb_no=https://www.sainsburys.co.uk/shop/gb/groceries/walkers-cheese---onion-crisps-325g)
