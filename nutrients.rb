@@ -90,7 +90,7 @@ class SimpleNutrientInfo
       
     }
     
-    pp @nutrients
+    #pp @nutrients
     
     return_simplified_text += "\t\t\t\t\t\t\t\t\t\t\tTotal (100g)\n"
                 

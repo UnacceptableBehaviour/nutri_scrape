@@ -63,7 +63,8 @@ urls = {
           
           #'tsc apple and raspberry juice' => 'https://www.tesco.com/groceries/en-GB/products/278994762',
           #'seeded panini' => 'https://www.tesco.com/groceries/en-GB/products/268580351',
-          'beef monster munch' => 'https://www.sainsburys.co.uk/shop/gb/groceries/monster-munch-roast-beef-x6-25g', # comes back w/ 22g column not 100g
+          #'beef monster munch' => 'https://www.sainsburys.co.uk/shop/gb/groceries/monster-munch-roast-beef-x6-25g', # comes back w/ 22g column not 100g
+          'sbs galangal paste' => 'https://www.sainsburys.co.uk/gol-ui/product/sainsburys-galangal-paste-90g',
           #'mcV' => 'https://www.sainsburys.co.uk/shop/gb/groceries/mcvities-milk-chocolate-digestives-biscuits-332g',
           #'asda lamb rogan josh' => 'https://groceries.asda.com/product/indian-takeaway/asda-lamb-rogan-josh/910002599334',
           #'asda three cheese garlic flatbread' => 'https://groceries.asda.com/product/flatbreads-ciabatta/asda-three-cheese-garlic-flatbread/910002093229',          

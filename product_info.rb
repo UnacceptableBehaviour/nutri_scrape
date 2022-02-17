@@ -22,6 +22,7 @@ require 'nokogiri'
 require 'open-uri'
 require 'mechanize'
 require 'logger'
+require 'pp'
 
 class ProductInfo
   attr_accessor :product_name,
@@ -81,18 +82,19 @@ class ProductInfo
 
     @supplier_name = 'Sainsburys'
     
-    @product_name = @product_page.css("h1").text
-    #puts "\n\nPRODUCT NAME: #{@product_name} <"
+    #@product_name = @product_page.css("h1").text
+    @product_name = @product_page.search(".//h1[@class='pd__header']").text.strip 
+    puts "\n\nPRODUCT NAME: #{@product_name} <"
     
     @price_per_package = @product_page.search(".//p[@class='pricePerUnit']").text.strip  #> "95p/unit"
-    #puts "Price per unit:  #{@price_per_package}"
+    puts "Price per unit:  #{@price_per_package}"
     
     @price_per_measure = @product_page.search(".//p[@class='pricePerMeasure']").text.strip  #> "48p/100g"
-    #puts "Price per measure:  #{@price_per_measure}"
+    puts "Price per measure:  #{@price_per_measure}"
     
     item_code_text = @product_page.search(".//p[@class='itemCode']").text.strip         #> "Item code: 1294231"
     @supplier_item_code = item_code_text.sub('Item code:','').strip
-    #puts "Item code:  #{@supplier_item_code}"
+    puts "Item code:  #{@supplier_item_code}"
     
     # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
     # get_ingredients
@@ -116,7 +118,11 @@ class ProductInfo
     # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
     # nutrition_info_per_100g
     
-    table = @product_page.at('table')
+    #table = @product_page.at('table') # moved to class='nutritionTable'
+    table = @product_page.search(".//table[@class='nutritionTable']")
+    pp table
+    puts "---@---"
+    puts table.text
 
     # add header titles
     #(CATEGORY_WIDTH+VALUE_WIDTH).times{ print "-"} ; puts
@@ -418,7 +424,7 @@ class ProductInfo
     
     
     # find which column the per 100g/ml is    
-    #col_100 = get_table_100g_colum(table, 2)   - only tested w/ sainburies
+    col_100 = get_table_100g_colum(table, 2)  # - only tested w/ sainburies - test once w tesco! :?
 
     
     table.search('tr').each { |tr|
@@ -625,10 +631,10 @@ class ProductInfo
     #pp table.search('tr').first
     table.search('tr').each{ |tr|
       tr.children.each_with_index{ |c, index|
-        puts "#{index} - #{c.text}"
+        #puts "#{index} - #{c.text}"
         if c.text =~ /per\s+100(g|ml)/i
           col_100 = index
-          puts "NEW col_100: #{col_100}"
+          #puts "NEW col_100: #{col_100}"
         end
       }
     }
