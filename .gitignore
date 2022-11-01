@@ -1,3 +1,11 @@
+
+create_TOC_for_md.py
+install_createTOC.sh
+render.py
+
+venv/
+__pycache__/
 mechanize.log
 .DS_Store
 /z_data
+scratch/
