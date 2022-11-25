@@ -536,7 +536,7 @@ class ProductInfo
     product_info = nil
     
     mech_agent = Mechanize.new { |agent|
-      agent.log = Logger.new "./z_data/mechanize/mechanize.log"
+      agent.log = Logger.new "/Users/simon/a_syllabus/lang/ruby/scripts/z_data/mechanize/mechanize.log"
       agent.history.clear
       agent.redirect_ok = true  
       agent.follow_meta_refresh = true
@@ -578,7 +578,7 @@ class ProductInfo
   
     
     # SAVE page for inspection
-    local_copy_location = './z_data/mechanize/'
+    local_copy_location = '/Users/simon/a_syllabus/lang/ruby/scripts/z_data/mechanize'
     
     retireved_page_name = "retievd_page_from_#{match}.html"
     
@@ -645,3 +645,4 @@ class ProductInfo
    
 end
 
+# Use get_product_info.rb for CLI access test urls etc
